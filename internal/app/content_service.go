@@ -14,9 +14,8 @@ type ContentService struct {
 func NewContentService(r domain.Retriever) *ContentService {
 	return &ContentService{Retriever: r}
 }
-
 func (s *ContentService) GetContentChunks(ctx context.Context, req *domain.ContentRequest) ([]domain.RetrievalChunk, error) {
-	log.Printf("【Content】 Received request: %+v", req)
+	util.LogWithIP(ctx, "调用工具:【get_content_chunks】 Received request: %+v", req)
 
 	datasetIDs, err := s.Retriever.ResolveDatasetIDs(req.Type)
 	if err != nil {
@@ -25,12 +24,12 @@ func (s *ContentService) GetContentChunks(ctx context.Context, req *domain.Conte
 	}
 	log.Printf("Resolved dataset IDs: %v", datasetIDs)
 
-	pageSize := req.PageSize
-	if pageSize <= 0 {
-		pageSize = 5
+	number := 5
+	if req.PageSize != nil && *req.PageSize > 0 {
+		number = *req.PageSize
 	}
 
-	chunks, err := s.Retriever.SearchChunks(ctx, datasetIDs, req.Keywords, 1024, req.Score, 1, pageSize)
+	chunks, err := s.Retriever.SearchChunks(ctx, datasetIDs, req.Keywords, 1024, req.Score, 1, number)
 	if err != nil {
 		log.Printf("Search chunks failed: %v", err)
 		return nil, err

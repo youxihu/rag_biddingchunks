@@ -5,15 +5,15 @@ type ContentRequest struct {
 	Type     string  `json:"type"`
 	Keywords string  `json:"keyword"`
 	Score    float64 `json:"score,omitempty"`
-	Page     int     `json:"page,omitempty"`
-	PageSize int     `json:"page_size,omitempty"`
+	Page     *int    `json:"page,omitempty"`
+	PageSize *int    `json:"number,omitempty"`
 }
 
 type CatalogRequest struct {
 	Keywords string   `json:"keyword"`
 	Score    *float64 `json:"score,omitempty"`
 	Page     *int     `json:"page,omitempty"`
-	PageSize *int     `json:"page_size,omitempty"`
+	PageSize *int     `json:"number,omitempty"`
 }
 
 type RetrievalChunk struct {

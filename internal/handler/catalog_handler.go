@@ -75,7 +75,7 @@ func (h *CatalogHandler) GetCatalogChunks(ctx context.Context, req *protocol.Cal
 
 	// 解析 page_size 参数，默认5
 	var pageSize int = 5
-	if rawPageSize, ok := rawArgs["page_size"]; ok {
+	if rawPageSize, ok := rawArgs["number"]; ok {
 		switch v := rawPageSize.(type) {
 		case float64:
 			pageSize = int(v)

@@ -37,17 +37,17 @@ func main() {
 
 	// 调用工具
 	callTool(mcpClient, "get_content_chunks", map[string]interface{}{
-		"project":   "项目A",
-		"type":      "1",
-		"keyword":   "钻孔灌注桩施工方案",
-		"score":     0.5,
-		"page_size": 1,
+		"project": "项目A",
+		"type":    "1",
+		"keyword": "钻孔灌注桩施工方案",
+		"score":   0.5,
+		"number":  2,
 	})
 
 	callTool(mcpClient, "get_catalog_chunks", map[string]interface{}{
-		"keyword":   "大型土石方项目",
-		"score":     0.1,
-		"page_size": 1,
+		"keyword": "大型土石方项目",
+		"score":   0.1,
+		"number":  5,
 	})
 
 }

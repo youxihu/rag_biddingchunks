@@ -21,12 +21,12 @@ func (s *CatalogService) GetCatalogChunks(ctx context.Context, req *domain.Catal
 
 	datasetIDs := []string{"01cf583657cf11f0b5690242ac1a0003"}
 
-	pageSize := 5
+	number := 5
 	if req.PageSize != nil && *req.PageSize > 0 {
-		pageSize = *req.PageSize
+		number = *req.PageSize
 	}
 
-	chunks, err := s.Retriever.SearchChunks(ctx, datasetIDs, req.Keywords, 1024, *req.Score, 1, pageSize)
+	chunks, err := s.Retriever.SearchChunks(ctx, datasetIDs, req.Keywords, 1024, *req.Score, 1, number)
 
 	if err != nil {
 		return nil, err
