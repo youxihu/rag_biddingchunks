@@ -66,7 +66,7 @@ func (r *RagflowRetriever) ResolveDatasetIDs(docType string) ([]string, error) {
 	return result, nil
 }
 
-func (r *RagflowRetriever) SearchChunks(ctx context.Context, datasetIDs []string, keywords string, topK int, score float64) ([]domain.RetrievalChunk, error) {
+func (r *RagflowRetriever) SearchChunks(ctx context.Context, datasetIDs []string, keywords string, topK int, score float64, page int, pageSize int) ([]domain.RetrievalChunk, error) {
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
@@ -78,6 +78,8 @@ func (r *RagflowRetriever) SearchChunks(ctx context.Context, datasetIDs []string
 		"similarity_threshold": score,
 		"keyword":              true,
 		"highlight":            false,
+		"page":                 page,
+		"page_size":            pageSize,
 	}
 
 	respBody, err := util.PostJSON(ctx, url, r.cfg.RagFlow.APIKey, body)

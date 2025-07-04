@@ -16,23 +16,18 @@ func NewCatalogService(r domain.Retriever) *CatalogService {
 }
 
 func (s *CatalogService) GetCatalogChunks(ctx context.Context, req *domain.CatalogRequest) ([]domain.RetrievalChunk, error) {
-	util.LogWithIP(ctx, "调用工具:【get_catalog_chunks】Keywords=%q, TopK=%d, Score=%.2f",
-		req.Keywords, *req.TopK, *req.Score)
-
-	// 设置默认值
-	defaultTopK := 5
-	if req.TopK == nil || *req.TopK <= 0 {
-		req.TopK = &defaultTopK
-	}
-
-	defaultScore := 0.5
-	if req.Score == nil || *req.Score <= 0 {
-		req.Score = &defaultScore
-	}
+	util.LogWithIP(ctx, "调用工具:【get_catalog_chunks】Keywords=%q, Score=%.2f, Page=%d, PageSize=%d",
+		req.Keywords, *req.Score, 1, *req.PageSize)
 
 	datasetIDs := []string{"01cf583657cf11f0b5690242ac1a0003"}
 
-	chunks, err := s.Retriever.SearchChunks(ctx, datasetIDs, req.Keywords, *req.TopK, *req.Score)
+	pageSize := 5
+	if req.PageSize != nil && *req.PageSize > 0 {
+		pageSize = *req.PageSize
+	}
+
+	chunks, err := s.Retriever.SearchChunks(ctx, datasetIDs, req.Keywords, 1024, *req.Score, 1, pageSize)
+
 	if err != nil {
 		return nil, err
 	}

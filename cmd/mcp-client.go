@@ -11,7 +11,8 @@ import (
 )
 
 func main() {
-	serverURL := "http://47.97.157.44:25007/mcp"
+	//serverURL := "http://47.97.157.44:25007/mcp"
+	serverURL := "http://192.168.0.43:25003/mcp"
 	transportClient, err := transport.NewStreamableHTTPClientTransport(serverURL)
 	if err != nil {
 		log.Fatalf("连接 MCP 服务失败: %v", err)
@@ -35,18 +36,20 @@ func main() {
 	}
 
 	// 调用工具
-	//callTool(mcpClient, "get_content_chunks", map[string]interface{}{
-	//	"project": "某项目",
-	//	"type":    "",
-	//	"keyword": "斗门35处",
-	//	"top_k":   5,
-	//	"score":   0.5,
-	//})
-	callTool(mcpClient, "get_catalog_chunks", map[string]interface{}{
-		"keyword": "桥梁工程",
-		"top_k":   5,
-		"score":   0.8,
+	callTool(mcpClient, "get_content_chunks", map[string]interface{}{
+		"project":   "项目A",
+		"type":      "1",
+		"keyword":   "钻孔灌注桩施工方案",
+		"score":     0.5,
+		"page_size": 1,
 	})
+
+	callTool(mcpClient, "get_catalog_chunks", map[string]interface{}{
+		"keyword":   "大型土石方项目",
+		"score":     0.1,
+		"page_size": 1,
+	})
+
 }
 
 func callTool(c *client.Client, toolName string, args map[string]interface{}) {

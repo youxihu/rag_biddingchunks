@@ -4,14 +4,16 @@ type ContentRequest struct {
 	Project  string  `json:"project"`
 	Type     string  `json:"type"`
 	Keywords string  `json:"keyword"`
-	TopK     int     `json:"top_k"`
-	Score    float64 `json:"score"`
+	Score    float64 `json:"score,omitempty"`
+	Page     int     `json:"page,omitempty"`
+	PageSize int     `json:"page_size,omitempty"`
 }
 
 type CatalogRequest struct {
-	Keywords string   `json:"keyword"`         // 必填
-	TopK     *int     `json:"top_k,omitempty"` // 可选
-	Score    *float64 `json:"score,omitempty"` // 可选
+	Keywords string   `json:"keyword"`
+	Score    *float64 `json:"score,omitempty"`
+	Page     *int     `json:"page,omitempty"`
+	PageSize *int     `json:"page_size,omitempty"`
 }
 
 type RetrievalChunk struct {

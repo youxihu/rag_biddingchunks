@@ -14,7 +14,7 @@ import (
 )
 
 func init() {
-	if err := config.LoadConfig("/app-acc/configs/online.auth.yaml"); err != nil {
+	if err := config.LoadConfig("/home/youxihu/secret/aiops/rag_biddingchunks/online.auth.yaml"); err != nil {
 		log.Fatalf("加载配置失败: %v", err)
 	}
 }

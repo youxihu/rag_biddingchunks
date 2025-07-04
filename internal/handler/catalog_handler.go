@@ -33,26 +33,8 @@ func (h *CatalogHandler) GetCatalogChunks(ctx context.Context, req *protocol.Cal
 		return util.ErrorResult("关键词不能为空"), nil
 	}
 
-	// 处理 top_k
-	var topK int
-	if rawTopK, ok := rawArgs["top_k"]; ok {
-		switch v := rawTopK.(type) {
-		case float64:
-			topK = int(v)
-		case string:
-			if v == "" {
-				topK = 5 // 使用默认值
-			} else if n, err := strconv.Atoi(v); err == nil && n > 0 {
-				topK = n
-			} else {
-				topK = 5
-			}
-		default:
-			topK = 5
-		}
-	} else {
-		topK = 5
-	}
+	// 不再解析 top_k，固定 1024
+	const fixedTopK = 1024
 
 	// 处理 score
 	var score float64
@@ -62,7 +44,7 @@ func (h *CatalogHandler) GetCatalogChunks(ctx context.Context, req *protocol.Cal
 			score = v
 		case string:
 			if v == "" {
-				score = 0.7 // 使用默认值
+				score = 0.7 // 默认值
 			} else if f, err := strconv.ParseFloat(v, 64); err == nil && f > 0 {
 				score = f
 			} else {
@@ -75,14 +57,47 @@ func (h *CatalogHandler) GetCatalogChunks(ctx context.Context, req *protocol.Cal
 		score = 0.7
 	}
 
-	// 构造请求对象（可选）
-	catalogReq := &domain.CatalogRequest{
-		Keywords: keywords,
-		TopK:     &topK,
-		Score:    &score,
+	// 解析 page 参数，默认1
+	var page int = 1
+	if rawPage, ok := rawArgs["page"]; ok {
+		switch v := rawPage.(type) {
+		case float64:
+			page = int(v)
+		case string:
+			if n, err := strconv.Atoi(v); err == nil && n > 0 {
+				page = n
+			}
+		}
+		if page <= 0 {
+			page = 1
+		}
 	}
 
-	// 真正调用业务逻辑
+	// 解析 page_size 参数，默认5
+	var pageSize int = 5
+	if rawPageSize, ok := rawArgs["page_size"]; ok {
+		switch v := rawPageSize.(type) {
+		case float64:
+			pageSize = int(v)
+		case string:
+			if n, err := strconv.Atoi(v); err == nil && n > 0 {
+				pageSize = n
+			}
+		}
+		if pageSize <= 0 {
+			pageSize = 5
+		}
+	}
+
+	// 构造请求对象，去掉TopK，新增page和pageSize
+	catalogReq := &domain.CatalogRequest{
+		Keywords: keywords,
+		Score:    &score,
+		Page:     &page,
+		PageSize: &pageSize,
+	}
+
+	// 调用业务逻辑
 	chunks, err := h.Service.GetCatalogChunks(ctx, catalogReq)
 	if err != nil {
 		return util.ErrorResult(fmt.Sprintf("检索失败: %v", err)), nil
@@ -93,6 +108,7 @@ func (h *CatalogHandler) GetCatalogChunks(ctx context.Context, req *protocol.Cal
 	for _, c := range contents {
 		result = append(result, &protocol.TextContent{Type: "text", Text: c})
 	}
+
 	return &protocol.CallToolResult{Content: result}, nil
 }
 
