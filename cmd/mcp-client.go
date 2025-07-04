@@ -36,13 +36,16 @@ func main() {
 	}
 
 	// 调用工具
-	callTool(mcpClient, "get_content_chunks", map[string]interface{}{
-		"project": "项目A",
-		"type":    "1",
-		"keyword": "钻孔灌注桩施工方案",
-		"score":   0.5,
-		"number":  2,
-	})
+	for i := 0; i < 10; i++ {
+		fmt.Printf("第 %d 次调用 get_content_chunks\n", i+1)
+		callTool(mcpClient, "get_content_chunks", map[string]interface{}{
+			"project": "项目A",
+			"type":    "1",
+			"keyword": "钻孔灌注桩施工方案",
+			"score":   0.5,
+			"number":  2,
+		})
+	}
 
 	callTool(mcpClient, "get_catalog_chunks", map[string]interface{}{
 		"keyword": "大型土石方项目",

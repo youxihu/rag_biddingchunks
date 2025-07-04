@@ -29,19 +29,30 @@ func (s *ContentService) GetContentChunks(ctx context.Context, req *domain.Conte
 		number = *req.PageSize
 	}
 
-	chunks, err := s.Retriever.SearchChunks(ctx, datasetIDs, req.Keywords, 1024, req.Score, 1, number)
-	if err != nil {
-		log.Printf("Search chunks failed: %v", err)
+	resultChan := make(chan []domain.RetrievalChunk, 1)
+	errChan := make(chan error, 1)
+
+	go func() {
+		chunks, err := s.Retriever.SearchChunks(ctx, datasetIDs, req.Keywords, 1024, req.Score, 1, number)
+		if err != nil {
+			errChan <- err
+			return
+		}
+		resultChan <- chunks
+	}()
+
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	case err := <-errChan:
 		return nil, err
+	case chunks := <-resultChan:
+		log.Printf("📤 从 RAGFlow 获取到 %d 条 chunk:", len(chunks))
+		for i, c := range chunks {
+			summary := util.SummarizeLog(c.Content, 40)
+			log.Printf(" [%d] 【%s】相似度=%.2f | 内容: %s", i+1, c.DocumentKeyword, c.Similarity, summary)
+		}
+		log.Printf("Filtered to %d chunks by score >= %.2f", len(chunks), req.Score)
+		return chunks, nil
 	}
-	log.Printf("📤 从 RAGFlow 获取到 %d 条 chunk:", len(chunks))
-
-	for i, c := range chunks {
-		summary := util.SummarizeLog(c.Content, 40)
-		log.Printf(" [%d] 【%s】相似度=%.2f | 内容: %s", i+1, c.DocumentKeyword, c.Similarity, summary)
-	}
-
-	log.Printf("Filtered to %d chunks by score >= %.2f", len(chunks), req.Score)
-
-	return chunks, nil
 }
